@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  */
 /**
  * Oracle, 2025. Java Platform, Standard Edition Documentation. [online] Oracle. Available at: https://docs.oracle.com/en/java/javase/ [Accessed 17 September 2026].
+ * Farrell, J. 2018. Programming Logic and Design. 9th edn. Boston, MA: Cengage Learning.
  */
 public class Login {
     
