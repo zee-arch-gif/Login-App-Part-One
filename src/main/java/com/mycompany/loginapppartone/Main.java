@@ -9,6 +9,9 @@ import java.util.Scanner;
  *
  * @author Student
  */
+/**
+ * Demo console app for Part 1 - Registration and login feature
+ */
 public class Main {
    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
