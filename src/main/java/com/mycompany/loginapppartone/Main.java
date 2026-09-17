@@ -11,6 +11,7 @@ import java.util.Scanner;
  */
 /**
  * Demo console app for Part 1 - Registration and login feature
+ * Oracle, 2025. Scanner (Java Platform SE). Available at: https://www.oracle-java-scanner-documentation/ [Accessed 17 September 2026].
  */
 public class Main {
    public static void main(String[] args) {
