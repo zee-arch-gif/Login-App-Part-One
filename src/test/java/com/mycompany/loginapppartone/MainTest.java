@@ -1,51 +1,53 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package com.mycompany.loginapppartone;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author Student
- */
 public class MainTest {
-    
-    public MainTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
-    @BeforeEach
-    public void setUp() {
-    }
-    
-    @AfterEach
-    public void tearDown() {
+
+    /** Runs the whole app with scripted keyboard input and returns the output. */
+    private String run(String input) {
+        InputStream oldIn = System.in;
+        PrintStream oldOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(input.getBytes()));
+            System.setOut(new PrintStream(out));
+            Main.main(new String[0]);
+        } finally {
+            System.setIn(oldIn);
+            System.setOut(oldOut);
+        }
+        return out.toString();
     }
 
-    /**
-     * Test of main method, of class Main.
-     */
     @Test
-    public void testMain() {
-        System.out.println("main");
-        String[] args = null;
-        Main.main(args);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testFullFlowSendAndQuit() {
+        Message.resetAll();
+        String input = String.join("\n",
+                "John", "Smith", "ab_1", "Password1!", "+27838968976", // register
+                "ab_1", "Password1!",                                  // login
+                "1",                                                   // number of messages
+                "1", "+27718693002", "Hi Mike, can you join us for dinner tonight?", "1",
+                "2",                                                   // coming soon
+                "3") + "\n";
+        String output = run(input);
+        assertTrue(output.contains("Welcome to QuickChat."));
+        assertTrue(output.contains("Message successfully sent."));
+        assertTrue(output.contains("Coming Soon."));
+        assertTrue(output.contains("Total messages sent: 1"));
     }
-    
+
+    @Test
+    public void testFailedLoginBlocksMessaging() {
+        String input = String.join("\n",
+                "John", "Smith", "ab_1", "Password1!", "+27838968976",
+                "wrong", "wrong") + "\n";
+        String output = run(input);
+        assertFalse(output.contains("Welcome to QuickChat."));
+    }
 }
