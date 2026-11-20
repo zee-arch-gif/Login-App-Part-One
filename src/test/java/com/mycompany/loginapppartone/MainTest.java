@@ -1,53 +1,78 @@
+
 package com.mycompany.loginapppartone;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
 
-    /** Runs the whole app with scripted keyboard input and returns the output. */
-    private String run(String input) {
-        InputStream oldIn = System.in;
-        PrintStream oldOut = System.out;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            System.setIn(new ByteArrayInputStream(input.getBytes()));
-            System.setOut(new PrintStream(out));
-            Main.main(new String[0]);
-        } finally {
-            System.setIn(oldIn);
-            System.setOut(oldOut);
-        }
-        return out.toString();
+    private PrintStream originalOut;
+    private ByteArrayOutputStream output;
+
+    @BeforeEach
+    void setup() {
+        MessageArrays.resetAll();
+        originalOut = System.out;
+        output = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(output));
+    }
+
+    @AfterEach
+    void cleanup() {
+        System.setOut(originalOut);
+        MessageArrays.resetAll();
     }
 
     @Test
-    public void testFullFlowSendAndQuit() {
-        Message.resetAll();
-        String input = String.join("\n",
-                "John", "Smith", "ab_1", "Password1!", "+27838968976", // register
-                "ab_1", "Password1!",                                  // login
-                "1",                                                   // number of messages
-                "1", "+27718693002", "Hi Mike, can you join us for dinner tonight?", "1",
-                "2",                                                   // coming soon
-                "3") + "\n";
-        String output = run(input);
-        assertTrue(output.contains("Welcome to QuickChat."));
-        assertTrue(output.contains("Message successfully sent."));
-        assertTrue(output.contains("Coming Soon."));
-        assertTrue(output.contains("Total messages sent: 1"));
+    void testReadInteger() {
+        Scanner scanner = new Scanner("abc\n4\n");
+        assertEquals(4, Main.readInt(scanner));
     }
 
     @Test
-    public void testFailedLoginBlocksMessaging() {
-        String input = String.join("\n",
-                "John", "Smith", "ab_1", "Password1!", "+27838968976",
-                "wrong", "wrong") + "\n";
-        String output = run(input);
-        assertFalse(output.contains("Welcome to QuickChat."));
+    void testStoredMessagesMenu() throws Exception {
+        Scanner scanner = new Scanner("6\n7\n");
+
+        Main.runStoredMessagesMenu(
+                scanner, "+27834557896");
+
+        String result = output.toString(
+                StandardCharsets.UTF_8);
+
+       
+assertTrue(result.contains("STORED MESSAGES"));
+assertTrue(result.contains("No messages available."));
+    }
+
+    @Test
+    void testQuickChatQuit() throws Exception {
+        Scanner scanner = new Scanner("0\n3\n");
+
+        Main.runQuickChat(scanner, "+27834557896");
+
+        String result = output.toString(
+                StandardCharsets.UTF_8);
+
+        assertTrue(result.contains("QUICKCHAT MENU"));
+        assertTrue(result.contains("Goodbye"));
+    }
+
+    @Test
+    void testFourthMenuOption() throws Exception {
+        Scanner scanner = new Scanner("0\n4\n7\n3\n");
+
+        Main.runQuickChat(scanner, "+27834557896");
+
+        String result = output.toString(
+                StandardCharsets.UTF_8);
+
+        assertTrue(result.contains("4. Stored Messages"));
+        assertTrue(result.contains("STORED MESSAGES"));
     }
 }
